@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "castlefortress-game",
+  "private_key_id": "6db995a78ddf15c5a8f8f36a4f289659f769c0c1",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDhulU49UeO3GZK\nYbAt+UB4MKifm/razzKbjOXAE7YwGBZgVqoBgOCBb/KmKg1nAqYYX3xQvmX639rv\nzv3jlIB1Dxi2cbLtGnvTenzjY7ypw7Cv7v9TGkO0x4q8RkpfMV+9Al5G2cPyZovX\nboRjUwogaLjNh7pHLD4FoCyVtcxcMctKhqiAN9J0CUuvLzKx/xrmpyuCP1C2XmV6\nuQjgYR/ttAoi5b4gCdvPEh7d/FowSByCcSXdCceXLrqyo/F07Gq+yKZKg9PzHeYf\nZj7Ifle9U/U6XTvcorwMGjLIr6ZFAWbtWSy8yq3rMILiSQWTO2sw39AYnevM76Z2\n6UkGX/nZAgMBAAECggEADkyG7IJBI7AbfLe+eNMSvepbLC0t0WGRs5/Tx/yXrGlC\nNZ0XzNuUnS5xwQvl6HIXAnE+B0FgZWl7zXgfxiRYlNG9f4UpT/K/CFD4i1D8mQZv\n8V0i6GlAA7omNDIBsREIHwmA3l0aGAdd8WorUb1nZVEs77wa1TpcvW99k4g+J1LT\nrowKUSZUzY33iOix2IqQtjkO5rW85vIGql8ao0nywo51m8wkNOskBcxxOPVk4ZYU\nfA/ZTvC7CvBa1zggjIvNbeiUeWki7W9KVgdq+VVqg6mhjcuDrOxigpjGerlzlHZi\nUmrIUUPETCuOvsW1cxYi2mIXw5tP32FSnJMM3EmvDwKBgQD9AvSRxrSNx7tgB79b\n8a5adYpeX/IJjVLxBKy7Qu//EI1KhjZ85gscPvyiXNzyTHPO5dVc+p1Kt/GtHbSH\nMR4djP40KX+qM2+QyAjiFt6lyRhdgXY8EjMhx8lXi7efHTbuO0wBiEWDZXJj7JOW\ny9rbetSDZcmQLtpjvwvlpWHNSwKBgQDkZODfnaGcLpWxQ/U79XnGGOKFTyd4guzU\n6SDOWJ56xTZHGpaG7zyCRag3MxwlwYvX0uoTY1ycN8uC9JwPHTaL/JrJUrYDa37d\nqWTC+suj84umjqCMot/d6fW2LYazY7shXC1fvYiNxnfr0dKl432rtKES0Gx8QcpG\n8tY9N/PS6wKBgQCXrcLi9cXeTYQWcO6Wd0/4KQkXxNs8QL4dgZjv9pQcTFb3+3gE\n7oBwoY4g5B0NISo4Oe7se836MkYva2SDu717J8BpkwtXBNj4agNxTxaROvphbDBu\nmNaQhM4+rqMZP5FjxqatMH3D5Phr0TM1ruZ4t61ZTJdG2d/Q9oJyXPBB+wKBgQCx\nPBtJTEDCO2BMjEj8+3RBJsR54L/ng+oXGsYrepeY+/sv2FEhavtQuI9eLppULkq/\n89tTqlKOo7mY6QtFq0zN+vt+6WF3a+6qQq5/pDFtDCy91oZ+PFJvGgRkGBYklWr8\n61QGrMUQCAi9hjjqJIw8N9KbEARvtHos7nsUTJw4ewKBgQCautTFIqclwmtPDPSB\nYHx5LkrGnji5kcBwxQtR8MpXbeRy0bW6zGANb3bWwp4nHgze/sNYzpzY8mP1u+vU\nCVl8SHnsNHzMsOf8ZTcWMc5ekmgDswhMPruEA82bCEXaCQRAtslY5nEIfaJWKy/i\nuQVUxzLlo14uNNons3Ur9thvCQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "castlefortress-game@appspot.gserviceaccount.com",
+  "client_id": "102980134054482219576",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/castlefortress-game%40appspot.gserviceaccount.com"
+}
