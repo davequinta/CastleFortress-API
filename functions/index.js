@@ -7,6 +7,8 @@ const { Wit, log } = require("node-wit");
 const interactive = require("node-wit").interactive;
 const fetch = require("node-fetch");
 
+const Tbase64 = require("base-64");
+
 const cors = require("cors");
 
 admin.initializeApp();
@@ -85,13 +87,22 @@ app.get("/test", async (req, res) => {
 //Testing Speech
 
 app.post("/speech_test", (req, res) => {
-  console.info("AUDIO_RECIVED", req.body);
+  console.info("DATA_RECIVED", req.body);
 
   const url = "https://api.wit.ai/speech";
+  const fileCreated = arrayBufferToBase64(req.body.audioContent.data);
+  //console.log("FILE CREATED AFTER RESPONSE", fileCreated);
+  const buffered_response = Buffer.from(fileCreated, "base64");
+  let rdata = {
+    id: req.body.idChat,
+    audioContent: buffered_response,
+  };
 
+  console.log("OBJETO", rdata);
+  // res.status(200).send(rdata);
   return fetch(url, {
     method: "POST",
-    body: req.body,
+    body: buffered_response,
     headers: {
       "Content-Type": "audio/wav",
       Authorization: "Bearer WJNHREJLFURRUENIER2I5W5OVBWUGTWP",
@@ -99,10 +110,20 @@ app.post("/speech_test", (req, res) => {
   })
     .then((res) => res.json())
     .then(async (data) => {
-      return res.status(200).send(data);
+      res.status(200).send(data);
     })
     .catch((error) => res.status(500).send(error));
 });
+
+arrayBufferToBase64 = (buffer) => {
+  var binary = "";
+  var bytes = new Uint8Array(buffer);
+  var len = bytes.byteLength;
+  for (var i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return Tbase64.encode(binary);
+};
 
 app.post("/speech_conv_test", (req, res) => {
   console.info("AUDIO_RECIVED", req.body);
@@ -137,13 +158,7 @@ app.post("/speech_conv_test", (req, res) => {
           //await docRef.add(ans);
           return res.status(200).send(ans);
       }
-      ans = formateResponse(
-        001,
-        user_txt,
-        "Neultra",
-        "I'm sorry, I am not able to understand, please ask me in another way or something else 😓",
-        -1
-      );
+      ans = await handleNone(data);
       //await docRef.add(ans);
       return res.status(200).send(ans);
     })
@@ -154,18 +169,9 @@ async function handleInsult(data) {
   const user_txt = data.text;
 
   const entity_name =
-    data.entities["wit$contact:contact"] &&
-    data.entities["wit$contact:contact"][0];
+    data.entities["insult:insult"] && data.entities["insult:insult"][0];
 
-  // const sentiment =
-  //   data.traits["wit$sentiment:sentiment"] &&
-  //   data.traits["wit$sentiment:sentiment"][0];
-
-  let insult = entity_name.value;
-
-  if (insult == null) {
-    insult = " ";
-  }
+  let insult = entity_name.value ? entity_name.value : " ";
 
   // const sentiment =
   //   data.traits["wit$sentiment:sentiment"] &&
@@ -191,7 +197,34 @@ async function handleInsult(data) {
   );
   return respo;
 }
+async function handleNone(data) {
+  const user_txt = data.text;
 
+  // const sentiment =
+  //   data.traits["wit$sentiment:sentiment"] &&
+  //   data.traits["wit$sentiment:sentiment"][0];
+
+  // let detected_sentiment = sentiment.value;
+  // console.log("SENTIMENT", sentiment.value);
+
+  // if (detected_sentiment == null) {
+  //   detected_sentiment = " ";
+  // }
+
+  let = p_ans = [
+    "Sorry I didn't understand you, try again!",
+    "Fuck m8, No fucking clue, try again!",
+    "I'm sorry, I am not able to understand, please ask me in another way or something else 😓",
+  ];
+  const respo = formateResponse(
+    001,
+    user_txt,
+    "Neutral",
+    p_ans[Math.floor(Math.random() * p_ans.length)],
+    0
+  );
+  return respo;
+}
 async function handleGreeting(data) {
   const user_txt = data.text;
 
@@ -203,13 +236,9 @@ async function handleGreeting(data) {
   //   data.traits["wit$sentiment:sentiment"] &&
   //   data.traits["wit$sentiment:sentiment"][0];
 
-  let user_name = entity_name.value;
+  let user_name = entity_name ? entity_name.value : "Handsome";
 
   console.log("USER_NAME", user_name);
-
-  if (user_name == null) {
-    user_name = " ";
-  }
 
   // let detected_sentiment = sentiment.value;
   // console.log("SENTIMENT", sentiment.value);
@@ -239,7 +268,11 @@ async function text2speech(text) {
   const request = {
     input: { text: text },
     // Select the language and SSML voice gender (optional)
-    voice: { languageCode: "en-US", ssmlGender: "NEUTRAL" },
+    voice: {
+      languageCode: "en-GB",
+      name: "en-GB-Wavenet-C",
+      ssmlGender: "FEMALE",
+    },
     // select the type of audio encoding
     audioConfig: { audioEncoding: "MP3" },
   };
