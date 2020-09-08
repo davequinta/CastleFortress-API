@@ -252,6 +252,9 @@ app.post("/gameNPL", async (req, res) => {
         case "handleCreators":
           ans = await handleCreators(idChat, data);
           return res.status(200).send(ans);
+        case "handleTech":
+          ans = await handleTech(idChat, data);
+          return res.status(200).send(ans);
 
         default:
           ans = await handleNone(idChat, data);
@@ -348,12 +351,48 @@ async function handleConfirmation(idChat, data) {
     case 1:
       context = await getContext(idChat);
       voice = await getVoiceConf(context.character);
+      idChat = 2;
+      break;
+    case 3:
+      context = await getContext(idChat);
+      voice = await getVoiceConf(context.character);
       idChat++;
       break;
     case 102:
       context = await getContext("1");
       voice = await getVoiceConf(context.character);
       idChat = 1;
+      break;
+    default:
+      context = {
+        text: p_ans[Math.floor(Math.random() * p_ans.length)],
+        landscape: 2,
+        character: -1,
+      };
+      voice = await getVoiceConf(7);
+      break;
+  }
+
+  const respo = formateResponse(idChat, user_txt, voice, context);
+
+  return respo;
+}
+
+async function handleSelfIntro(idChat, data) {
+  console.log("IM THE Confirmation INTENT");
+  console.log("IM THE ID", idChat);
+  console.log("Im the data", data.text);
+  const user_txt = data.text;
+
+  let context = null;
+  let voice = null;
+
+  let = p_ans = ["Sorry, repeat that please."];
+  switch (idChat) {
+    case 2:
+      context = await getContext(idChat);
+      voice = await getVoiceConf(context.character);
+      idChat = 3;
       break;
     default:
       context = {
@@ -438,6 +477,27 @@ async function handleCreators(idChat, data) {
   let = p_ans = [
     "-A group of crazy devs developed me",
     "I was made by a group of developers from El Salvador!",
+  ];
+
+  let context = {
+    text: p_ans[Math.floor(Math.random() * p_ans.length)],
+    landscape: 2,
+    character: -1,
+  };
+
+  let voice = await getVoiceConf(7);
+
+  const respo = formateResponse(idChat, user_txt, voice, context);
+
+  return respo;
+}
+
+async function handleTech(idChat, data) {
+  const user_txt = data.text;
+
+  let = p_ans = [
+    "Because, My core is built with the powerful Wit.AI",
+    "Thanks to The great wit.ai engine!",
   ];
 
   let context = {
