@@ -240,6 +240,15 @@ app.post("/gameNPL", async (req, res) => {
         case "handleGreeting":
           ans = await handleGreeting(idChat, data);
           return res.status(200).send(ans);
+        case "handleConfirmation":
+          ans = await handleConfirmation(idChat, data);
+          return res.status(200).send(ans);
+        case "handleNegation":
+          ans = await handleNegation(idChat, data);
+          return res.status(200).send(ans);
+        case "handleSelfIntro":
+          ans = await handleSelfIntro(idChat, data);
+          return res.status(200).send(ans);
         case "handleCreators":
           ans = await handleCreators(idChat, data);
           return res.status(200).send(ans);
@@ -285,6 +294,8 @@ async function getVoiceConf(id) {
 //When the API don't know what to answer
 async function handleNone(idChat, data) {
   const user_txt = data.text;
+  let context = null;
+  let voice = null;
 
   let = p_ans = [
     "Sorry, I didn't get that!",
@@ -292,13 +303,104 @@ async function handleNone(idChat, data) {
     "I can't help you with that yet, lets keep going were we left",
   ];
 
-  let context = {
-    text: p_ans[Math.floor(Math.random() * p_ans.length)],
-    landscape: -1,
-    character: -1,
-  };
+  switch (idChat) {
+    case 1:
+      context = await getContext("101");
+      voice = await getVoiceConf(context.character);
+      idChat = 102;
+      break;
+    case 2:
+      context = await getContext("210");
+      voice = await getVoiceConf(context.character);
+      idChat = 2;
+      break;
+    case 102:
+      context = await getContext("101");
+      voice = await getVoiceConf(context.character);
+      idChat = 101;
+      break;
 
-  let voice = await getVoiceConf(7);
+    default:
+      context = {
+        text: p_ans[Math.floor(Math.random() * p_ans.length)],
+        landscape: 2,
+        character: -1,
+      };
+      voice = await getVoiceConf(7);
+      break;
+  }
+
+  const respo = formateResponse(idChat, user_txt, voice, context);
+
+  return respo;
+}
+
+async function handleConfirmation(idChat, data) {
+  console.log("IM THE Confirmation INTENT");
+  console.log("IM THE ID", idChat);
+  console.log("Im the data", data.text);
+  const user_txt = data.text;
+  let context = null;
+  let voice = null;
+
+  let = p_ans = ["Sorry, repeat that."];
+  switch (idChat) {
+    case 1:
+      context = await getContext(idChat);
+      voice = await getVoiceConf(context.character);
+      idChat++;
+      break;
+    case 102:
+      context = await getContext("1");
+      voice = await getVoiceConf(context.character);
+      idChat = 1;
+      break;
+    default:
+      context = {
+        text: p_ans[Math.floor(Math.random() * p_ans.length)],
+        landscape: 2,
+        character: -1,
+      };
+      voice = await getVoiceConf(7);
+      break;
+  }
+
+  const respo = formateResponse(idChat, user_txt, voice, context);
+
+  return respo;
+}
+
+async function handleNegation(idChat, data) {
+  console.log("IM THE NEGATION INTENT");
+  console.log("IM THE ID", idChat);
+  console.log("Im the data", data.text);
+  const user_txt = data.text;
+  let context = null;
+  let voice = null;
+
+  let = p_ans = ["Sorry, repeat that."];
+
+  switch (idChat) {
+    case 1:
+      context = await getContext("200");
+      console.log("CONTEXT_CASE_1", context);
+      voice = await getVoiceConf(context.character);
+      idChat = 700;
+      break;
+    case 102:
+      context = await getContext("101");
+      voice = await getVoiceConf(context.character);
+      idChat = 101;
+      break;
+    default:
+      context = {
+        text: p_ans[Math.floor(Math.random() * p_ans.length)],
+        landscape: 2,
+        character: -1,
+      };
+      voice = await getVoiceConf(7);
+      break;
+  }
 
   const respo = formateResponse(idChat, user_txt, voice, context);
 
@@ -317,30 +419,7 @@ async function handleGreeting(idChat, data) {
 
   let context = {
     text: p_ans[Math.floor(Math.random() * p_ans.length)],
-    landscape: -1,
-    character: -1,
-  };
-
-  let voice = await getVoiceConf(7);
-
-  const respo = formateResponse(idChat, user_txt, voice, context);
-
-  return respo;
-}
-
-//handleAnime
-
-async function handleGreeting(idChat, data) {
-  const user_txt = data.text;
-
-  let = p_ans = [
-    "Hello There! I hope you are having a great experience",
-    "Hi, glad you came!",
-  ];
-
-  let context = {
-    text: p_ans[Math.floor(Math.random() * p_ans.length)],
-    landscape: -1,
+    landscape: 2,
     character: -1,
   };
 
@@ -363,7 +442,7 @@ async function handleCreators(idChat, data) {
 
   let context = {
     text: p_ans[Math.floor(Math.random() * p_ans.length)],
-    landscape: -1,
+    landscape: 2,
     character: -1,
   };
 
