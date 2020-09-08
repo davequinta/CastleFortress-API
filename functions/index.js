@@ -197,140 +197,27 @@ async function handleInsult(data) {
   );
   return respo;
 }
-async function handleNone(data) {
-  const user_txt = data.text;
-
-  // const sentiment =
-  //   data.traits["wit$sentiment:sentiment"] &&
-  //   data.traits["wit$sentiment:sentiment"][0];
-
-  // let detected_sentiment = sentiment.value;
-  // console.log("SENTIMENT", sentiment.value);
-
-  // if (detected_sentiment == null) {
-  //   detected_sentiment = " ";
-  // }
-
-  let = p_ans = [
-    "Sorry I didn't understand you, try again!",
-    "Fuck m8, No fucking clue, try again!",
-    "I'm sorry, I am not able to understand, please ask me in another way or something else 😓",
-  ];
-  const respo = formateResponse(
-    001,
-    user_txt,
-    "Neutral",
-    p_ans[Math.floor(Math.random() * p_ans.length)],
-    0
-  );
-  return respo;
-}
-async function handleGreeting(data) {
-  const user_txt = data.text;
-
-  const entity_name =
-    data.entities["wit$contact:contact"] &&
-    data.entities["wit$contact:contact"][0];
-
-  // const sentiment =
-  //   data.traits["wit$sentiment:sentiment"] &&
-  //   data.traits["wit$sentiment:sentiment"][0];
-
-  let user_name = entity_name ? entity_name.value : "Handsome";
-
-  console.log("USER_NAME", user_name);
-
-  // let detected_sentiment = sentiment.value;
-  // console.log("SENTIMENT", sentiment.value);
-
-  // if (detected_sentiment == null) {
-  //   detected_sentiment = " ";
-  // }
-
-  let = p_ans = [
-    "Hello There!",
-    "Hi " + user_name + "!, I'm John Snow, how may I help you?",
-  ];
-  const respo = formateResponse(
-    001,
-    user_txt,
-    "Neutral",
-    p_ans[Math.floor(Math.random() * p_ans.length)],
-    0
-  );
-  return respo;
-}
-
-async function text2speech(text) {
-  // The text to synthesize
-
-  // Construct the request
-  const request = {
-    input: { text: text },
-    // Select the language and SSML voice gender (optional)
-    voice: {
-      languageCode: "en-GB",
-      name: "en-GB-Wavenet-C",
-      ssmlGender: "FEMALE",
-    },
-    // select the type of audio encoding
-    audioConfig: { audioEncoding: "MP3" },
-  };
-
-  // Performs the text-to-speech request
-  const [response] = await clientGCP.synthesizeSpeech(request);
-
-  // Write the binary audio content to a local file
-  // const writeFile = util.promisify(fs.writeFile);
-  // await writeFile("output.mp3", response.audioContent, "binary");
-  // console.log("Audio content written to file: output.mp3");
-  return response;
-}
-//FORMATTING RESPONSE TO SEND
-async function formateResponse(id, user_txt, sentiment, message, ansimg) {
-  let img = "";
-
-  const speech = await text2speech(message);
-
-  /*
-    Code of images
-    0-> Dude 
-    1-> Woman
-  */
-
-  let data = {
-    idChat: id,
-    user_txt: user_txt,
-    uid: "X4TkYxTgloQlFjgPKO6ciKSUeL63",
-    sentiment: sentiment,
-    message: message,
-    img_avatar: 1,
-    img_landscape: 1,
-    speech: speech,
-  };
-
-  return data;
-}
 
 //Setup TEST Wit.AI
 
 //Ending Test API
 
 //THIS IS THE REAL DEAL----
-app.post("/gameNPL", (req, res) => {
+app.post("/gameNPL", async (req, res) => {
   console.info("DATA_RECIVED", req.body);
+
+  const idChat = req.body.idChat;
+
+  if (idChat === 0) {
+    let ans2 = await handleInitial(idChat);
+    return res.status(200).send(ans2);
+  }
 
   const url = "https://api.wit.ai/speech";
   const fileCreated = arrayBufferToBase64(req.body.audioContent.data);
   //console.log("FILE CREATED AFTER RESPONSE", fileCreated);
   const buffered_response = Buffer.from(fileCreated, "base64");
-  let rdata = {
-    id: req.body.idChat,
-    audioContent: buffered_response,
-  };
 
-  console.log("OBJETO", rdata);
-  // res.status(200).send(rdata);
   return fetch(url, {
     method: "POST",
     body: buffered_response,
@@ -350,18 +237,199 @@ app.post("/gameNPL", (req, res) => {
 
       let ans = "";
       switch (intent.name) {
-        case "greetingIntent":
-          ans = await handleGreeting(data);
-          //await docRef.add(ans);
+        case "handleGreeting":
+          ans = await handleGreeting(idChat, data);
           return res.status(200).send(ans);
-        case "insultIntent":
-          ans = await handleInsult(data);
-          //await docRef.add(ans);
+        case "handleCreators":
+          ans = await handleCreators(idChat, data);
+          return res.status(200).send(ans);
+
+        default:
+          ans = await handleNone(idChat, data);
           return res.status(200).send(ans);
       }
-      ans = await handleNone(data);
-      //await docRef.add(ans);
-      return res.status(200).send(ans);
     })
     .catch((error) => res.status(500).send(error));
 });
+
+//Getting info TEXT, LANDSCAPE, AVATAR
+
+async function getContext(id) {
+  console.log("CONTEXT_FUNCTION", id);
+  let query = db.collection("story").doc(parseInt(id).toString());
+  let item = await query.get();
+  console.log("ITEM", item);
+  let response = {
+    text: item.data().text,
+    landscape: item.data().landscape,
+    character: item.data().character,
+  };
+  console.log("RESPONSE_STORY", response);
+  return response;
+}
+
+async function getVoiceConf(id) {
+  let query = db.collection("voices").doc(parseInt(id).toString());
+  let item = await query.get();
+  let response = {
+    character: item.data().character,
+    languageCode: item.data().languageCode,
+    name: item.data().name,
+    pitch: item.data().pitch,
+    speakingRate: item.data().speakingRate,
+  };
+  console.log("RESPONSE_VOICE_CONFIGURATION", response);
+  return response;
+}
+
+//When the API don't know what to answer
+async function handleNone(idChat, data) {
+  const user_txt = data.text;
+
+  let = p_ans = [
+    "Sorry, I didn't get that!",
+    "What? can you repeat please",
+    "I can't help you with that yet, lets keep going were we left",
+  ];
+
+  let context = {
+    text: p_ans[Math.floor(Math.random() * p_ans.length)],
+    landscape: -1,
+    character: -1,
+  };
+
+  let voice = await getVoiceConf(7);
+
+  const respo = formateResponse(idChat, user_txt, voice, context);
+
+  return respo;
+}
+
+//handleAnime
+
+async function handleGreeting(idChat, data) {
+  const user_txt = data.text;
+
+  let = p_ans = [
+    "Hello There! I hope you are having a great experience",
+    "Hi, glad you came!",
+  ];
+
+  let context = {
+    text: p_ans[Math.floor(Math.random() * p_ans.length)],
+    landscape: -1,
+    character: -1,
+  };
+
+  let voice = await getVoiceConf(7);
+
+  const respo = formateResponse(idChat, user_txt, voice, context);
+
+  return respo;
+}
+
+//handleAnime
+
+async function handleGreeting(idChat, data) {
+  const user_txt = data.text;
+
+  let = p_ans = [
+    "Hello There! I hope you are having a great experience",
+    "Hi, glad you came!",
+  ];
+
+  let context = {
+    text: p_ans[Math.floor(Math.random() * p_ans.length)],
+    landscape: -1,
+    character: -1,
+  };
+
+  let voice = await getVoiceConf(7);
+
+  const respo = formateResponse(idChat, user_txt, voice, context);
+
+  return respo;
+}
+
+//handleAnime
+
+async function handleCreators(idChat, data) {
+  const user_txt = data.text;
+
+  let = p_ans = [
+    "-A group of crazy devs developed me",
+    "I was made by a group of developers from El Salvador!",
+  ];
+
+  let context = {
+    text: p_ans[Math.floor(Math.random() * p_ans.length)],
+    landscape: -1,
+    character: -1,
+  };
+
+  let voice = await getVoiceConf(7);
+
+  const respo = formateResponse(idChat, user_txt, voice, context);
+
+  return respo;
+}
+
+//formateResponse(id, user_txt, voiceConf, context)
+
+//Start of the game
+async function handleInitial(id) {
+  console.log("INITIAL_FUN");
+  let context = await getContext(id);
+
+  console.log("CONTEXT", context);
+
+  let voice = await getVoiceConf(context.character);
+
+  const respo = formateResponse(++id, "Let's begin the story!", voice, context);
+
+  return respo;
+}
+
+async function text2speech(voiceConf, text) {
+  // The text to synthesize
+
+  // Construct the request
+  const request = {
+    input: { text: text },
+    // Select the language and SSML voice gender (optional)
+    voice: {
+      languageCode: voiceConf.languageCode,
+      name: voiceConf.name,
+    },
+    // select the type of audio encoding
+    audioConfig: {
+      audioEncoding: "MP3",
+      pitch: voiceConf.pitch,
+      speakingRate: voiceConf.speakingRate,
+    },
+  };
+
+  // Performs the text-to-speech request
+  const [response] = await clientGCP.synthesizeSpeech(request);
+
+  // Write the binary audio content to a local file
+  // const writeFile = util.promisify(fs.writeFile);
+  // await writeFile("output.mp3", response.audioContent, "binary");
+  // console.log("Audio content written to file: output.mp3");
+  return response;
+}
+//FORMATTING RESPONSE TO SEND
+async function formateResponse(id, user_txt, voiceConf, context) {
+  const speech = await text2speech(voiceConf, context.text);
+
+  let data = {
+    idChat: id,
+    user_txt: user_txt,
+    message: context.text,
+    img_avatar: context.character,
+    img_landscape: context.landscape,
+    speech: speech,
+  };
+
+  return data;
+}
